@@ -18,7 +18,7 @@ export function statement(invoice: Invoce, plays: Plays) {
     // add volume credits
     volumeCredits += Math.max(perf.audience - 30, 0);
 
-    const thisAmount = amountFor(perf, queryFor(perf));
+    const thisAmount = amountFor(perf);
     // add extra credit for every ten comedy attendees
     if (queryFor(perf).type === "comedy")
       volumeCredits += Math.floor(perf.audience / 5);
@@ -38,12 +38,9 @@ function queryFor(aPerformance: Invoce["performance"][number]) {
   return players[aPerformance.playId];
 }
 
-function amountFor(
-  aPerformance: Invoce["performance"][number],
-  play: Plays[keyof Plays]
-) {
+function amountFor(aPerformance: Invoce["performance"][number]) {
   let result = 0;
-  switch (play.type) {
+  switch (queryFor(aPerformance).type) {
     case "tragedy":
       result = 40000;
       if (aPerformance.audience > 30) {
@@ -58,7 +55,7 @@ function amountFor(
       result += 300 * aPerformance.audience;
       break;
     default:
-      throw new Error(`unknown type: ${play.type}`);
+      throw new Error(`unknown type: ${queryFor(aPerformance).type}`);
   }
 
   return result;
