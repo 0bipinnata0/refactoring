@@ -3,7 +3,7 @@ import { Invoce } from "./../invoices";
 import invoices from "../invoices";
 import players from "../plays";
 
-function statement(invoice: Invoce, plays: Plays) {
+export function statement(invoice: Invoce, plays: Plays) {
   let totalAmount = 0;
   let volumeCredits = 0;
 
@@ -16,28 +16,11 @@ function statement(invoice: Invoce, plays: Plays) {
 
   for (let perf of invoice.performance) {
     const play = plays[perf.playId];
-    let thisAmount = 0;
-    switch (play.type) {
-      case "tragedy":
-        thisAmount = 40000;
-        if (perf.audience > 30) {
-          thisAmount += 1000 * (perf.audience - 30);
-        }
-        break;
-      case "comedy":
-        thisAmount = 30000;
-        if (perf.audience > 20) {
-          thisAmount += 10000 + 500 * (perf.audience - 20);
-        }
-        thisAmount += 300 * perf.audience;
-        break;
-      default:
-        throw new Error(`unknown type: ${play.type}`);
-    }
 
     // add volume credits
     volumeCredits += Math.max(perf.audience - 30, 0);
 
+    const thisAmount = amountFor(perf, play);
     // add extra credit for every ten comedy attendees
     if (play.type === "comedy") volumeCredits += Math.floor(perf.audience / 5);
     // print line for this order
@@ -49,6 +32,32 @@ function statement(invoice: Invoce, plays: Plays) {
 
   result += `Amount owed is ${format(totalAmount / 100)}\n`;
   result += `You earned ${volumeCredits} credits\n`;
+  return result;
+}
+
+function amountFor(
+  perf: Invoce["performance"][number],
+  play: Plays[keyof Plays]
+) {
+  let result = 0;
+  switch (play.type) {
+    case "tragedy":
+      result = 40000;
+      if (perf.audience > 30) {
+        result += 1000 * (perf.audience - 30);
+      }
+      break;
+    case "comedy":
+      result = 30000;
+      if (perf.audience > 20) {
+        result += 10000 + 500 * (perf.audience - 20);
+      }
+      result += 300 * perf.audience;
+      break;
+    default:
+      throw new Error(`unknown type: ${play.type}`);
+  }
+
   return result;
 }
 
