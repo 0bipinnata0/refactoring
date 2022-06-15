@@ -15,16 +15,15 @@ export function statement(invoice: Invoce, plays: Plays) {
   }).format;
 
   for (let perf of invoice.performance) {
-    const play = queryFor(plays)(perf);
-
     // add volume credits
     volumeCredits += Math.max(perf.audience - 30, 0);
 
-    const thisAmount = amountFor(perf, play);
+    const thisAmount = amountFor(perf, queryFor(perf));
     // add extra credit for every ten comedy attendees
-    if (play.type === "comedy") volumeCredits += Math.floor(perf.audience / 5);
+    if (queryFor(perf).type === "comedy")
+      volumeCredits += Math.floor(perf.audience / 5);
     // print line for this order
-    result += ` ${play.name}: ${format(thisAmount / 100)} (${
+    result += ` ${queryFor(perf).name}: ${format(thisAmount / 100)} (${
       perf.audience
     } seats)\n`;
     totalAmount += thisAmount;
@@ -35,10 +34,8 @@ export function statement(invoice: Invoce, plays: Plays) {
   return result;
 }
 
-function queryFor(plays: Plays) {
-  return function (aPerformance: Invoce["performance"][number]) {
-    return plays[aPerformance.playId];
-  };
+function queryFor(aPerformance: Invoce["performance"][number]) {
+  return players[aPerformance.playId];
 }
 
 function amountFor(
