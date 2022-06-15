@@ -15,7 +15,7 @@ export function statement(invoice: Invoce, plays: Plays) {
   }).format;
 
   for (let perf of invoice.performance) {
-    const play = plays[perf.playId];
+    const play = queryFor(plays)(perf);
 
     // add volume credits
     volumeCredits += Math.max(perf.audience - 30, 0);
@@ -33,6 +33,12 @@ export function statement(invoice: Invoce, plays: Plays) {
   result += `Amount owed is ${format(totalAmount / 100)}\n`;
   result += `You earned ${volumeCredits} credits\n`;
   return result;
+}
+
+function queryFor(plays: Plays) {
+  return function (aPerformance: Invoce["performance"][number]) {
+    return plays[aPerformance.playId];
+  };
 }
 
 function amountFor(
