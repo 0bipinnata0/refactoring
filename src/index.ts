@@ -29,10 +29,10 @@ export function statement(invoice: Invoce, plays: Plays) {
 }
 
 function volumeCreditsFor(aPerformance: Invoce["performance"][number]) {
-  let volumeCredits = Math.max(aPerformance.audience - 30, 0);
+  let result = Math.max(aPerformance.audience - 30, 0);
   if (queryFor(aPerformance).type === "comedy")
-    volumeCredits += Math.floor(aPerformance.audience / 5);
-  return volumeCredits;
+    result += Math.floor(aPerformance.audience / 5);
+  return result;
 }
 
 function queryFor(aPerformance: Invoce["performance"][number]) {
